@@ -1,5 +1,28 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <j:if test="${!it.artifacts.isEmpty()}">
+    <script>
+        window.addEventListener('load', function () {
+			loadScript("/plugin/s3/scripts/qrcode.js", () => {
+				var artifactElements = YAHOO.util.Dom.getElementsByClassName('s3-artifact');
+
+				for (var i = 0; i &lt; artifactElements.length; i++) {
+					var artifactElement = artifactElements[i];
+
+					var qrCodeElement = artifactElement.parentElement.parentElement.getElementsBySelector("#qrcode")[0];
+					new QRCode(qrCodeElement, {
+						text: YAHOO.util.Dom.getAttribute(artifactElement, "href"),
+						width: 220,
+						height: 220,
+						colorDark : "#000000",
+						colorLight : "#ffffff",
+						correctLevel : QRCode.CorrectLevel.H
+					});
+				}
+			});
+        });
+    </script>
+  </j:if>
   <l:layout>
     <st:include it="${it.build}" page="sidepanel.jelly" />
     <l:main-panel>
@@ -10,12 +33,16 @@
       <table class="fingerprint-in-build sortable bigtable">
         <tr>
           <th initialSortDir="down">Artifacts</th>
+		  <th>QR Code</th>
           <th/>
         </tr>
         <j:forEach var="e" items="${it.artifacts}">
           <tr>
             <td>
-							<a href="download/${e.link}">${h.escape(e.name)}</a>
+              <a class="s3-artifact" href="${e.link}">${h.escape(e.name)}</a>
+            </td>
+            <td>
+              <div style="margin: 25px" id="qrcode" />
             </td>
             <td>
               <a href="${rootURL}/fingerprint/${e.fingerprint}/">
