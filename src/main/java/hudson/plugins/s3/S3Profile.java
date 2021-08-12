@@ -156,12 +156,13 @@ public class S3Profile {
                     upload = new S3UploadCallable(accessKey, secretKey, useRole, dest, userMetadata,
                             storageClass, selregion, useServerSideEncryption, getProxy());
                 }
+                final S3Profile profile = this;
 
                 final FingerprintRecord fingerprintRecord = repeat(maxUploadRetries, uploadRetryTime, dest, new Callable<FingerprintRecord>() {
                     @Override
                     public FingerprintRecord call() throws IOException, InterruptedException {
                         final String md5 = invoke(uploadFromSlave, filePath, upload);
-                        return new FingerprintRecord(produced, bucketName, fileName, selregion, md5);
+                        return new FingerprintRecord(produced, bucketName, fileName, selregion, md5, run, profile);
                     }
                 });
 
@@ -243,11 +244,13 @@ public class S3Profile {
               final FilePath target = getFilePath(targetDir, flatten, artifact.getName());
 
               if (FileHelper.selected(includeFilter, excludeFilter, artifact.getName())) {
+                  final S3Profile profile = this;
+
                   fingerprints.add(repeat(maxDownloadRetries, downloadRetryTime, dest, new Callable<FingerprintRecord>() {
                       @Override
                       public FingerprintRecord call() throws IOException, InterruptedException {
                           final String md5 = target.act(new S3DownloadCallable(accessKey, secretKey, useRole, dest, artifact.getRegion(), getProxy()));
-                          return new FingerprintRecord(true, dest.bucketName, target.getName(), artifact.getRegion(), md5);
+                          return new FingerprintRecord(true, dest.bucketName, target.getName(), artifact.getRegion(), md5, build, profile);
                       }
                   }));
               }
