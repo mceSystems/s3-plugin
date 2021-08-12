@@ -135,7 +135,7 @@ public class S3Test {
                 Mockito.anyBoolean(),
                 Mockito.anyBoolean(),
                 Mockito.anyBoolean()
-        )).thenReturn(newArrayList(new FingerprintRecord(true, "bucket", "path", "eu-west-1", "xxxx")));
+        )).thenReturn(newArrayList(new FingerprintRecord(true, "bucket", "path", "eu-west-1", "xxxx", null, profile)));
         return profile;
     }
 
