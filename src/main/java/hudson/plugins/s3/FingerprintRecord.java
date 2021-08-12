@@ -82,9 +82,9 @@ public class FingerprintRecord implements Serializable {
     @Exported
     public String getLink() {
         final S3Profile s3 = this.profile;
-        if (s3 == null) {
+        if (s3 == null || this.runDetails == null) {
             //Chrome and IE convert backslash in the URL into forward slashes, need escape with %5c
-            return artifact.getName().replace("\\","%5C");
+            return "download/" + artifact.getName().replace("\\","%5C");
         }
 
         final AmazonS3Client client = s3.getClient(this.getArtifact().getRegion());
