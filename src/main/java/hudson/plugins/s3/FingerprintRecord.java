@@ -40,16 +40,16 @@ public class FingerprintRecord implements Serializable {
     private final S3Artifact artifact;
     private boolean keepForever;
     private boolean showDirectlyInBrowser;
-    private S3Profile profile;
-    private Run<?, ?> run;
+    private final S3Profile profile;
+    private final RunDetails runDetails;
 
-    public FingerprintRecord(boolean produced, String bucket, String name, String region, String md5sum, Run<?, ?> run, S3Profile profile) {
+    public FingerprintRecord(boolean produced, String bucket, String name, String region, String md5sum, RunDetails runDetails, S3Profile profile) {
         this.produced = produced;
         this.artifact = new S3Artifact(region, bucket, name);
         this.md5sum = md5sum;
         this.showDirectlyInBrowser = false;
         this.keepForever = false;
-        this.run = run;
+        this.runDetails = runDetails;
         this.profile = profile;
     }
 
@@ -82,8 +82,13 @@ public class FingerprintRecord implements Serializable {
     @Exported
     public String getLink() {
         final S3Profile s3 = this.profile;
+        if (s3 == null) {
+            //Chrome and IE convert backslash in the URL into forward slashes, need escape with %5c
+            return artifact.getName().replace("\\","%5C");
+        }
+
         final AmazonS3Client client = s3.getClient(this.getArtifact().getRegion());
-        final String url = getDownloadURL(client, s3.getSignedUrlExpirySeconds(), run, this);
+        final String url = getDownloadURL(client, s3.getSignedUrlExpirySeconds(), runDetails, this);
 
         return url;
     }
@@ -98,8 +103,8 @@ public class FingerprintRecord implements Serializable {
         return artifact;
     }
 
-    private String getDownloadURL(AmazonS3Client client, int signedUrlExpirySeconds, Run run, FingerprintRecord record) {
-        final Destination dest = Destination.newFromRun(run, record.getArtifact());
+    private String getDownloadURL(AmazonS3Client client, int signedUrlExpirySeconds, RunDetails runDetails, FingerprintRecord record) {
+        final Destination dest = Destination.newFromRunDetails(runDetails, record.getArtifact());
         final GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(dest.bucketName, dest.objectName);
         request.setExpiration(new Date(System.currentTimeMillis() + signedUrlExpirySeconds*1000));
 

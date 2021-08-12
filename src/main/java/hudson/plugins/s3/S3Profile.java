@@ -31,8 +31,9 @@ import com.google.common.collect.Lists;
 
 import hudson.model.Run;
 import hudson.util.Secret;
+import java.io.Serializable;
 
-public class S3Profile {
+public class S3Profile implements Serializable {
     private final String name;
     private final String accessKey;
     private final Secret secretKey;
@@ -163,7 +164,7 @@ public class S3Profile {
                     @Override
                     public FingerprintRecord call() throws IOException, InterruptedException {
                         final String md5 = invoke(uploadFromSlave, filePath, upload);
-                        return new FingerprintRecord(produced, bucketName, fileName, selregion, md5, run, profile);
+                        return new FingerprintRecord(produced, bucketName, fileName, selregion, md5, new RunDetails(run), profile);
                     }
                 });
 
@@ -251,7 +252,7 @@ public class S3Profile {
                       @Override
                       public FingerprintRecord call() throws IOException, InterruptedException {
                           final String md5 = target.act(new S3DownloadCallable(accessKey, secretKey, useRole, dest, artifact.getRegion(), getProxy()));
-                          return new FingerprintRecord(true, dest.bucketName, target.getName(), artifact.getRegion(), md5, build, profile);
+                          return new FingerprintRecord(true, dest.bucketName, target.getName(), artifact.getRegion(), md5, new RunDetails(build), profile);
                       }
                   }));
               }
