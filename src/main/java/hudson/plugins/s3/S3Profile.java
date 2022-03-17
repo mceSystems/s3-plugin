@@ -132,7 +132,8 @@ public class S3Profile implements Serializable {
                                     final boolean uploadFromSlave,
                                     final boolean managedArtifacts,
                                     final boolean useServerSideEncryption,
-                                    final boolean gzipFiles) throws IOException, InterruptedException {
+                                    final boolean gzipFiles,
+                                    final String s3ObjectLambda) throws IOException, InterruptedException {
         final List<FingerprintRecord> fingerprints = new ArrayList<>(fileNames.size());
 
         try {
@@ -143,10 +144,10 @@ public class S3Profile implements Serializable {
                 final Destination dest;
                 final boolean produced;
                 if (managedArtifacts) {
-                    dest = Destination.newFromRun(run, bucketName, fileName, true);
+                    dest = Destination.newFromRun(run, bucketName, fileName, true, s3ObjectLambda);
                     produced = run.getTimeInMillis() <= filePath.lastModified() + 2000;
                 } else {
-                    dest = new Destination(bucketName, fileName);
+                    dest = new Destination(bucketName, fileName, s3ObjectLambda);
                     produced = false;
                 }
 
@@ -164,7 +165,7 @@ public class S3Profile implements Serializable {
                     @Override
                     public FingerprintRecord call() throws IOException, InterruptedException {
                         final String md5 = invoke(uploadFromSlave, filePath, upload);
-                        return new FingerprintRecord(produced, bucketName, fileName, selregion, md5, new RunDetails(run), profile);
+                        return new FingerprintRecord(produced, bucketName, fileName, selregion, md5, new RunDetails(run), profile, s3ObjectLambda);
                     }
                 });
 
@@ -209,7 +210,7 @@ public class S3Profile implements Serializable {
 
         final String buildName = build.getDisplayName();
         final int buildID = build.getNumber();
-        final Destination dest = new Destination(bucket, "jobs/" + buildName + '/' + buildID + '/' + name);
+        final Destination dest = new Destination(bucket, "jobs/" + buildName + '/' + buildID + '/' + name, bucket);
 
         final ListObjectsRequest listObjectsRequest = new ListObjectsRequest()
         .withBucketName(dest.bucketName)
@@ -252,7 +253,7 @@ public class S3Profile implements Serializable {
                       @Override
                       public FingerprintRecord call() throws IOException, InterruptedException {
                           final String md5 = target.act(new S3DownloadCallable(accessKey, secretKey, useRole, dest, artifact.getRegion(), getProxy()));
-                          return new FingerprintRecord(true, dest.bucketName, target.getName(), artifact.getRegion(), md5, new RunDetails(build), profile);
+                          return new FingerprintRecord(true, dest.bucketName, target.getName(), artifact.getRegion(), md5, new RunDetails(build), profile, artifact.getObjectLambda());
                       }
                   }));
               }

@@ -42,15 +42,17 @@ public class FingerprintRecord implements Serializable {
     private boolean showDirectlyInBrowser;
     private final S3Profile profile;
     private final RunDetails runDetails;
+    private final String s3ObjectLambda;
 
-    public FingerprintRecord(boolean produced, String bucket, String name, String region, String md5sum, RunDetails runDetails, S3Profile profile) {
+    public FingerprintRecord(boolean produced, String bucket, String name, String region, String md5sum, RunDetails runDetails, S3Profile profile, String s3ObjectLambda) {
         this.produced = produced;
-        this.artifact = new S3Artifact(region, bucket, name);
+        this.artifact = new S3Artifact(region, bucket, name, s3ObjectLambda);
         this.md5sum = md5sum;
         this.showDirectlyInBrowser = false;
         this.keepForever = false;
         this.runDetails = runDetails;
         this.profile = profile;
+        this.s3ObjectLambda = s3ObjectLambda;
     }
 
     Fingerprint addRecord(Run<?, ?> run) throws IOException {
@@ -105,7 +107,7 @@ public class FingerprintRecord implements Serializable {
 
     private String getDownloadURL(AmazonS3Client client, int signedUrlExpirySeconds, RunDetails runDetails, FingerprintRecord record) {
         final Destination dest = Destination.newFromRunDetails(runDetails, record.getArtifact());
-        final GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(dest.bucketName, dest.objectName);
+        final GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(dest.s3ObjectLambda, dest.objectName);
         request.setExpiration(new Date(System.currentTimeMillis() + signedUrlExpirySeconds*1000));
 
         if (!record.isShowDirectlyInBrowser()) {

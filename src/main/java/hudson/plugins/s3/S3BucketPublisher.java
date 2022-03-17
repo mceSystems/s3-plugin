@@ -265,6 +265,7 @@ public final class S3BucketPublisher extends Recorder implements SimpleBuildStep
 
                 final String bucket = Util.replaceMacro(entry.bucket, envVars);
                 final String storageClass = Util.replaceMacro(entry.storageClass, envVars);
+                final String s3ObjectLambda = Util.replaceMacro(entry.s3ObjectLambda, envVars);
                 final String selRegion = entry.selectedRegion;
 
                 final List<FilePath> paths = new ArrayList<>();
@@ -294,7 +295,7 @@ public final class S3BucketPublisher extends Recorder implements SimpleBuildStep
                 final Map<String, String> escapedMetadata = buildMetadata(envVars, entry);
 
                 final List<FingerprintRecord> records = Lists.newArrayList();
-                final List<FingerprintRecord> fingerprints = profile.upload(run, bucket, paths, filenames, escapedMetadata, storageClass, selRegion, entry.uploadFromSlave, entry.managedArtifacts, entry.useServerSideEncryption, entry.gzipFiles);
+                final List<FingerprintRecord> fingerprints = profile.upload(run, bucket, paths, filenames, escapedMetadata, storageClass, selRegion, entry.uploadFromSlave, entry.managedArtifacts, entry.useServerSideEncryption, entry.gzipFiles, s3ObjectLambda);
 
                 for (FingerprintRecord fingerprintRecord : fingerprints) {
                     records.add(fingerprintRecord);

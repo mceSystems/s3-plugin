@@ -14,12 +14,14 @@ public final class S3Artifact implements Serializable {
     private final String name;
     private final String region;
     private /*almost final*/ Boolean useFullProjectName;
+    private final String s3ObjectLambda;
 
-    public S3Artifact(String region, String bucket, String name) {
+    public S3Artifact(String region, String bucket, String name, String s3ObjectLambda) {
         this.bucket = bucket.intern();
         this.name = name.intern();
         this.region = region.intern();
         this.useFullProjectName = true;
+        this.s3ObjectLambda = s3ObjectLambda;
     }
 
     /* Old version of this plugin used short name,
@@ -44,6 +46,11 @@ public final class S3Artifact implements Serializable {
     @Exported
     public String getRegion() {
         return region;
+    }
+
+    @Exported
+    public String getObjectLambda() {
+        return s3ObjectLambda;
     }
 
     public Boolean useFullProjectName() {

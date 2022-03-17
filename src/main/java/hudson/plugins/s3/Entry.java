@@ -43,7 +43,7 @@ public final class Entry implements Describable<Entry> {
      * Stores the Region Value
      */
     public String selectedRegion;
-    
+
     /**
      * Do not publish the artifacts when build fails
      */
@@ -58,7 +58,7 @@ public final class Entry implements Describable<Entry> {
      * Let Jenkins manage the S3 uploaded artifacts
      */
     public boolean managedArtifacts;
-    
+
     /**
      * Use S3 server side encryption when uploading the artifacts
      */
@@ -90,11 +90,13 @@ public final class Entry implements Describable<Entry> {
     */
     public List<MetadataPair> userMetadata;
 
+    public String s3ObjectLambda;
+
     @DataBoundConstructor
     public Entry(String bucket, String sourceFile, String excludedFile, String storageClass, String selectedRegion,
                  boolean noUploadOnFailure, boolean uploadFromSlave, boolean managedArtifacts,
                  boolean useServerSideEncryption, boolean flatten, boolean gzipFiles, boolean keepForever,
-                 boolean showDirectlyInBrowser, List<MetadataPair> userMetadata) {
+                 boolean showDirectlyInBrowser, List<MetadataPair> userMetadata, String s3ObjectLambda) {
         this.bucket = bucket;
         this.sourceFile = sourceFile;
         this.excludedFile = excludedFile;
@@ -109,6 +111,7 @@ public final class Entry implements Describable<Entry> {
         this.keepForever = keepForever;
         this.userMetadata = userMetadata;
         this.showDirectlyInBrowser = showDirectlyInBrowser;
+        this.s3ObjectLambda = s3ObjectLambda;
     }
 
     @Override
