@@ -48,6 +48,13 @@ public class Destination implements Serializable {
     return "Destination [bucketName="+bucketName+", objectName="+objectName+"]";
   }
 
+  public String downloadEndpoint() {
+	  if (this.s3ObjectLambda != null) {
+		  return this.s3ObjectLambda;
+	  }
+
+	  return this.bucketName;
+  }
 
   public static Destination newFromRun(Run run, String bucketName, String fileName, boolean enableFullpath, String s3ObjectLambda)
   {

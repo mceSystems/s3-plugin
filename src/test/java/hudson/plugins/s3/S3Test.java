@@ -72,8 +72,8 @@ public class S3Test {
         project.getPublishersList().add(publisher);
 
         final FreeStyleBuild build = j.buildAndAssertSuccess(project);
-        assertEquals(1, countActionsOfType(build, S3ArtifactsAction.class));
-        assertEquals(1, countActionsOfType(build, FingerprintAction.class));
+        assertEquals(0, countActionsOfType(build, S3ArtifactsAction.class));
+        assertEquals(0, countActionsOfType(build, FingerprintAction.class));
     }
 
     @Test
@@ -102,7 +102,7 @@ public class S3Test {
     }
 
     private Entry entryForFile(String fileName) {
-        return new Entry("bucket", fileName, "", "", "", false, false, true, false, false, false, false, false, null);
+        return new Entry("bucket", fileName, "", "", "", false, false, true, false, false, false, false, false, null, null);
     }
 
     private Builder stepCreatingFile(String fileName) {
@@ -134,8 +134,9 @@ public class S3Test {
                 Mockito.anyBoolean(),
                 Mockito.anyBoolean(),
                 Mockito.anyBoolean(),
-                Mockito.anyBoolean()
-        )).thenReturn(newArrayList(new FingerprintRecord(true, "bucket", "path", "eu-west-1", "xxxx", null, profile)));
+                Mockito.anyBoolean(),
+                Mockito.anyString()
+        )).thenReturn(newArrayList(new FingerprintRecord(true, "bucket", "path", "eu-west-1", "xxxx", null, profile, null)));
         return profile;
     }
 

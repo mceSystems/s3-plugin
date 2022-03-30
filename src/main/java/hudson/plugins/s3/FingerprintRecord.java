@@ -6,7 +6,7 @@ import hudson.model.Run;
 import jenkins.model.Jenkins;
 import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,7 +17,6 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ResponseHeaderOverrides;
 import hudson.Functions;
@@ -89,7 +88,7 @@ public class FingerprintRecord implements Serializable {
             return "download/" + artifact.getName().replace("\\","%5C");
         }
 
-        final AmazonS3Client client = s3.getClient(this.getArtifact().getRegion());
+        final AmazonS3 client = s3.getClient(this.getArtifact().getRegion());
         final String url = getDownloadURL(client, s3.getSignedUrlExpirySeconds(), runDetails, this);
 
         return url;
@@ -105,9 +104,9 @@ public class FingerprintRecord implements Serializable {
         return artifact;
     }
 
-    private String getDownloadURL(AmazonS3Client client, int signedUrlExpirySeconds, RunDetails runDetails, FingerprintRecord record) {
+    private String getDownloadURL(AmazonS3 client, int signedUrlExpirySeconds, RunDetails runDetails, FingerprintRecord record) {
         final Destination dest = Destination.newFromRunDetails(runDetails, record.getArtifact());
-        final GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(dest.s3ObjectLambda, dest.objectName);
+        final GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(dest.downloadEndpoint(), dest.objectName);
         request.setExpiration(new Date(System.currentTimeMillis() + signedUrlExpirySeconds*1000));
 
         if (!record.isShowDirectlyInBrowser()) {

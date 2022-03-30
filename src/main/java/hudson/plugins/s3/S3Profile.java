@@ -210,7 +210,7 @@ public class S3Profile implements Serializable {
 
         final String buildName = build.getDisplayName();
         final int buildID = build.getNumber();
-        final Destination dest = new Destination(bucket, "jobs/" + buildName + '/' + buildID + '/' + name, bucket);
+        final Destination dest = new Destination(bucket, "jobs/" + buildName + '/' + buildID + '/' + name, null);
 
         final ListObjectsRequest listObjectsRequest = new ListObjectsRequest()
         .withBucketName(dest.bucketName)
