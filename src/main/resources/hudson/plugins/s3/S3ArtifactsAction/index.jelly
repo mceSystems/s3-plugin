@@ -12,11 +12,11 @@
 					var qrCodeElement = artifactElement.parentElement.parentElement.getElementsBySelector("#qrcode")[0];
 					new QRCode(qrCodeElement, {
 						text: YAHOO.util.Dom.getAttribute(artifactElement, "href"),
-						width: 220,
-						height: 220,
+						width: 256,
+						height: 256,
 						colorDark : "#000000",
 						colorLight : "#ffffff",
-						correctLevel : QRCode.CorrectLevel.H
+						correctLevel : QRCode.CorrectLevel.L
 					});
 				}
 			});
