@@ -4,14 +4,14 @@
     <script>
         window.addEventListener('load', function () {
 			loadScript("/plugin/s3/scripts/qrcode.js", () => {
-				var artifactElements = YAHOO.util.Dom.getElementsByClassName('s3-artifact');
+				var artifactElements = document.getElementsByClassName('s3-artifact');
 
 				for (var i = 0; i &lt; artifactElements.length; i++) {
 					var artifactElement = artifactElements[i];
 
-					var qrCodeElement = artifactElement.parentElement.parentElement.getElementsBySelector("#qrcode")[0];
+					var qrCodeElement = artifactElement.parentElement.parentElement.querySelector("#qrcode");
 					new QRCode(qrCodeElement, {
-						text: YAHOO.util.Dom.getAttribute(artifactElement, "href"),
+						text: artifactElement.getAttribute("href"),
 						width: 256,
 						height: 256,
 						colorDark : "#000000",
